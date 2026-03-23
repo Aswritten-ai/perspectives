@@ -1,0 +1,521 @@
+# =============================================================
+# SPARQL Transaction
+# Memory : 2026-03-10-peter-caron-gotham-acupuncture-growth-strategy
+# Generated : 2026-03-10T16:40:50.001Z
+# Agent   : aswritten.ai
+# =============================================================
+
+PREFIX narr: <https://aswritten.ai/narrative#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX oa:   <http://www.w3.org/ns/oa#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX sb:   <https://aswritten.ai/sb#>
+
+# =============================================================
+# BLOCK 1 — INSERT DATA (added triples)
+# =============================================================
+
+INSERT DATA {
+
+  # ── Narratives ──────────────────────────────────────────────
+
+  narr:Narrative_DoctorReferralPipeline a narr:Narrative ;
+    dct:source narr:Sample_1 ;
+    narr:theme "Let doctors sell for you — leverage existing authority and patient relationships to drive referrals instead of hard-selling vulnerable patients." ;
+    skos:broader narr:CoreNarratives ;
+    skos:note "B2B doctor-to-doctor approach: doctors prescribe acupuncture care, removing the ethical burden of direct patient solicitation and increasing conversion." .
+
+  narr:Narrative_AuthorityPositioning a narr:Narrative ;
+    dct:source narr:Sample_1 ;
+    narr:theme "Specialist credentialing beats generalist breadth when building doctor referral relationships." ;
+    skos:broader narr:CoreNarratives ;
+    skos:note "Publishing a book and narrowing to defined specialties signals peer-level authority to physicians who respect specialty training." .
+
+  narr:Narrative_LandAndExpand a narr:Narrative ;
+    dct:source narr:Sample_1 ;
+    narr:theme "Enter referral relationships through a focused niche, then expand to adjacent specialties once trust is established." ;
+    skos:broader narr:ExpansionPathway ;
+    skos:note "Four core niches (post-stroke, pelvic floor, digestion, anxiety/depression) are the entry point; migraines and others are 'later sells'." .
+
+  narr:Narrative_TimeAsTheMoat a narr:Narrative ;
+    dct:source narr:Sample_1 ;
+    narr:theme "The competitive moat is time, not IP — replication is possible but takes five years of relationship and logistics building." ;
+    skos:broader narr:CoreNarratives ;
+    skos:note "Honest assessment: logistics and relationships are the primary barriers, not proprietary protocols." .
+
+  narr:Narrative_FranchiseLikeGrowth a narr:Narrative ;
+    dct:source narr:Sample_1 ;
+    narr:theme "Train specialist practitioners with golden handcuffs, then offer franchise-like expansion as a retention and growth carrot." ;
+    skos:broader narr:ExpansionPathway ;
+    skos:note "Apprentices gain specialties; future locations can be spun out with founder blessing, creating aligned incentives." .
+
+  # ── Observations: Market Context ────────────────────────────
+
+  narr:Observation_MarketContext_WesternMedicineLimits a narr:Observation ;
+    skos:broader narr:MarketContext ;
+    dct:source narr:Sample_1 ;
+    skos:note "Western medicine has limited tools for post-stroke recovery, pelvic floor, and digestive conditions — creating referral opportunity for acupuncture specialists." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 1821 ;
+      oa:end 2010
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "Western medicine once again has a very limited tool set here." ;
+      oa:prefix "Same pattern applies to digestive issues:\n\n> \"" ;
+      oa:suffix " And so these patients"
+    ] .
+
+  narr:Observation_MarketContext_DoctorVettingGap a narr:Observation ;
+    skos:broader narr:FrictionFailure ;
+    dct:source narr:Sample_1 ;
+    skos:note "Doctors want to refer to acupuncturists but lack a reliable vetting mechanism — an underserved need that Gotham Acupuncture can fill through credentialing." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 2100 ;
+      oa:end 2340
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "I've always wanted an acupuncturist to refer patients to. But I haven't known how to find one. I don't know how to vet one." ;
+      oa:prefix "> \"I can't tell you the number of times I've talked to a doctor who's gone, \"" ;
+      oa:suffix " I'm convinced that acupuncture is good."
+    ] .
+
+  # ── Observations: Strategy ──────────────────────────────────
+
+  narr:Observation_Strategy_PositioningThesis a narr:Observation ;
+    skos:broader narr:PositioningThesis ;
+    dct:source narr:Sample_1 ;
+    skos:note "Meet doctors where they are: adopt specialty framing familiar to physicians rather than asking them to adopt holistic medicine framing." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 2900 ;
+      oa:end 3100
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "We're really looking to meet doctors where they are as opposed to asking them to meet us where we are." ;
+      oa:prefix "> \"" ;
+      oa:suffix "\""
+    ] .
+
+  narr:Observation_Strategy_MoatLeverage a narr:Observation ;
+    skos:broader narr:MoatLeverage ;
+    dct:source narr:Sample_1 ;
+    skos:note "Moat is time-based: logistics, relationships, and a 5-year replication lag. Not IP-dependent." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 4900 ;
+      oa:end 5050
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "I think the moat is actually more time than anything else. Like, you can duplicate this. It's gonna take you five years." ;
+      oa:prefix "> \"" ;
+      oa:suffix "\""
+    ] .
+
+  narr:Observation_Strategy_FocusSequencing a narr:Observation ;
+    skos:broader narr:FocusSequencing ;
+    dct:source narr:Sample_1 ;
+    skos:note "Four core niches are the entry point; additional specialties like migraines are introduced only after trust is established with referral partners." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 3400 ;
+      oa:end 3600
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "I can mention like, you know, I'm really good with migraines too. But that's a later sell." ;
+      oa:prefix "I've built a good relationship with a doctor and they've been sending people to me for low back pain, " ;
+      oa:suffix ""
+    ] .
+
+  narr:Observation_Strategy_KPIs a narr:Observation ;
+    skos:broader narr:KPIsSuccess ;
+    dct:source narr:Sample_1 ;
+    skos:note "Revenue target: $3.5M gross at 70% occupancy. Model validation window: 18 months. Expansion to additional locations: ~2 years." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 5800 ;
+      oa:end 6000
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "if we're at 70% occupancy, there should be about a $3.5 million gross business." ;
+      oa:prefix "> \"The goal is — our initial math is that " ;
+      oa:suffix "\""
+    ] .
+
+  # ── Observations: Org ───────────────────────────────────────
+
+  narr:Observation_Org_HiringPlan a narr:Observation ;
+    skos:broader narr:HiringPlan ;
+    dct:source narr:Sample_1 ;
+    skos:note "Hire vetted recent graduates; train them as specialists through classes and internal mentorship. They are not yet generalists — must be built into specialists." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 4400 ;
+      oa:end 4650
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "we're gonna be sending them to classes to up their skills. We're gonna be training them ourselves." ;
+      oa:prefix "vetted recent graduates that we really trust, " ;
+      oa:suffix " We are going to have to actually make them specialists."
+    ] .
+
+  narr:Observation_Org_RetentionModel a narr:Observation ;
+    skos:broader narr:OperatingModelShifts ;
+    dct:source narr:Sample_1 ;
+    skos:note "Golden handcuffs retention: pay well, offer advancement into leadership roles at new locations. Practitioners can duplicate protocols but not the business." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 4700 ;
+      oa:end 4870
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "They can't duplicate our business." ;
+      oa:prefix "They could duplicate our protocols. " ;
+      oa:suffix ""
+    ] .
+
+  # ── Observations: Product ───────────────────────────────────
+
+  narr:Observation_Product_AIUseCase a narr:Observation ;
+    skos:broader narr:ModulesCapabilities ;
+    dct:source narr:Sample_1 ;
+    skos:note "AI identified as a tool for generating consistent, reliable long-tail service communications to referral partners — reducing manual effort for segmented content." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 6500 ;
+      oa:end 6720
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "some aspects of that are where we're hoping to be able to use AI more and more — to generate those sorts of things in a consistent and reliable way" ;
+      oa:prefix "> \"Frankly, " ;
+      oa:suffix ", or in a way where an assistant"
+    ] .
+
+  # ── Claims ──────────────────────────────────────────────────
+
+  narr:Claim_DoctorAuthorityLeverage a narr:Claim ;
+    narr:hasConvictionLevel narr:Conviction_Foundation ;
+    narr:aboutNode narr:Narrative_DoctorReferralPipeline ;
+    narr:supports narr:Narrative_DoctorReferralPipeline ;
+    skos:note "Doctors already have authority and patient relationships; getting them to prescribe acupuncture care is more effective and ethical than direct patient solicitation." ;
+    dct:source narr:Sample_1 .
+
+  narr:Claim_SpecialistVsGeneralist a narr:Claim ;
+    narr:hasConvictionLevel narr:Conviction_Foundation ;
+    narr:aboutNode narr:Narrative_AuthorityPositioning ;
+    narr:supports narr:Narrative_AuthorityPositioning ;
+    skos:note "Generalist positioning actively lowers authority with specialist physicians; narrow specialty framing is required for credible doctor relationships." ;
+    dct:source narr:Sample_1 .
+
+  narr:Claim_TimeBasedMoat a narr:Claim ;
+    narr:hasConvictionLevel narr:Conviction_Boulder ;
+    narr:aboutNode narr:Narrative_TimeAsTheMoat ;
+    narr:supports narr:Narrative_TimeAsTheMoat ;
+    skos:note "The moat is primarily time (5-year replication lag) via logistics and relationships, not proprietary IP or protocols." ;
+    dct:source narr:Sample_1 .
+
+  narr:Claim_RevenueTarget a narr:Claim ;
+    narr:hasConvictionLevel narr:Conviction_Stake ;
+    narr:aboutNode narr:Observation_Strategy_KPIs ;
+    narr:supports narr:Observation_Strategy_KPIs ;
+    skos:note "$3.5M gross at 70% occupancy; model validated within 18 months; expansion to additional locations at ~2 years." ;
+    dct:source narr:Sample_1 .
+
+  narr:Claim_FranchiseExpansion a narr:Claim ;
+    narr:hasConvictionLevel narr:Conviction_Notion ;
+    narr:aboutNode narr:Narrative_FranchiseLikeGrowth ;
+    narr:supports narr:Narrative_FranchiseLikeGrowth ;
+    skos:note "Franchise-like expansion is a possibility surfaced by Scarlet; Peter has not fully committed to the model but finds it directionally aligned." ;
+    dct:source narr:Sample_1 .
+
+  # ── Style Observations ──────────────────────────────────────
+
+  narr:StyleObs_GoldenHandcuffs a narr:StyleObservation ;
+    skos:broader narr:IdiolectPhrasing ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:KeyPhrases ;
+    skos:note "Business idiom used to describe retention via compensation and advancement incentives. Signals pragmatic, deal-oriented register." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 4680 ;
+      oa:end 4720
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "put some golden handcuffs on them" ;
+      oa:prefix "The basic thing we're gonna have to do there is " ;
+      oa:suffix ". We're gonna have to pay them quite well."
+    ] .
+
+  narr:StyleObs_DoctorsSellForYou a narr:StyleObservation ;
+    skos:broader narr:Analogy ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:CoreNarratives ;
+    skos:note "Reframes doctors as a distributed sales channel — a B2B analogy that repositions the referral relationship as a leverage mechanism." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 320 ;
+      oa:end 430
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "get someone else to sell my services for me, someone who already has authority" ;
+      oa:prefix "I can " ;
+      oa:suffix ". Who already has a relationship with the patients."
+    ] .
+
+  narr:StyleObs_MeetDoctorsWhere a narr:StyleObservation ;
+    skos:broader narr:Antithesis ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:PositioningThesis ;
+    skos:note "Antithetical framing: 'meet doctors where they are' vs. 'asking them to meet us where we are' — crystallizes the outward-facing positioning philosophy." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 2880 ;
+      oa:end 2990
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "meet doctors where they are as opposed to asking them to meet us where we are" ;
+      oa:prefix "We're really looking to " ;
+      oa:suffix "."
+    ] .
+
+  narr:StyleObs_LaterSell a narr:StyleObservation ;
+    skos:broader narr:StockPhrases ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:KeyPhrases ;
+    skos:note "Sales-native phrase used to describe sequenced niche expansion. Signals a deliberate, staged go-to-market mindset." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 3570 ;
+      oa:end 3590
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "that's a later sell" ;
+      oa:prefix "I'm really good with migraines too. But " ;
+      oa:suffix "."
+    ] .
+
+  narr:StyleObs_NerdsTogether a narr:StyleObservation ;
+    skos:broader narr:Analogy ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:PositioningThesis ;
+    skos:note "Scarlet's colloquial analogy crystallizing the peer-specialist dynamic: shared specialty creates collegial rapport rather than practitioner-vs-physician tension." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 3100 ;
+      oa:end 3200
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "now you're nerds together. Instead of you being a holistic practitioner." ;
+      oa:prefix "I understand specialty. I trained for specialty. And " ;
+      oa:suffix ""
+    ] .
+
+  narr:StyleObs_MoatCadence a narr:StyleObservation ;
+    skos:broader narr:ShortPunchyCadence ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:MoatLeverage ;
+    skos:note "Two-sentence rhythm: long qualifying sentence followed by a short declarative punch. Classic rhetorical cadence for emphasis." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 4920 ;
+      oa:end 5000
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "You can duplicate this. It's gonna take you five years." ;
+      oa:prefix "Like, " ;
+      oa:suffix ""
+    ] .
+
+  narr:StyleObs_EthicalTone a narr:StyleObservation ;
+    skos:broader narr:ToneAuthoritative ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:NarrativeAnchor ;
+    skos:note "Peter explicitly names the ethical constraint of not hard-selling vulnerable patients — signals values-driven authority rather than pure commercial framing." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 900 ;
+      oa:end 1080
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "I also don't want to do a hard sell when you're in this vulnerable state." ;
+      oa:prefix "I can look at it and go, this is gonna be worth it for you. But " ;
+      oa:suffix " So what I want is for your doctor to say"
+    ] .
+
+  narr:StyleObs_DiluteBrand a narr:StyleObservation ;
+    skos:broader narr:IdiolectPhrasing ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:KeyPhrases ;
+    skos:note "Brand-native language applied to specialty selection — signals awareness of positioning discipline and the risk of over-extension." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 3700 ;
+      oa:end 3800
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "that's about all we can get away with before you start to dilute the brand" ;
+      oa:prefix "we think " ;
+      oa:suffix "."
+    ] .
+
+  narr:StyleObs_FirstPersonPlural a narr:StyleObservation ;
+    skos:broader narr:FirstPerson ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:ToneVoice ;
+    skos:note "Consistent use of 'we/our' throughout strategic framing signals co-founder partnership and shared ownership of the model." ;
+    rdf:value true ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 4380 ;
+      oa:end 4460
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "we're gonna be sending them to classes to up their skills. We're gonna be training them ourselves." ;
+      oa:prefix "" ;
+      oa:suffix " We are going to have to actually make them specialists."
+    ] .
+
+  narr:StyleObs_BookCredential a narr:StyleObservation ;
+    skos:broader narr:ToneAuthoritative ;
+    dct:source narr:Sample_1 ;
+    skos:related narr:PositioningThesis ;
+    skos:note "Candid acknowledgment that the book's value is signaling, not readership — a meta-rhetorical move that builds credibility through honesty about credentialing mechanics." ;
+    oa:hasSelector [
+      a oa:TextPositionSelector ;
+      oa:start 2430 ;
+      oa:end 2540
+    ] ;
+    oa:hasSelector [
+      a oa:TextQuoteSelector ;
+      oa:exact "We've published a book, even if no one ever reads it, that does a thing." ;
+      oa:prefix "" ;
+      oa:suffix ""
+    ] .
+
+  # ── Transaction Provenance ───────────────────────────────────
+
+  narr:Tx_20260310T164050Z a prov:Activity ;
+    prov:wasAssociatedWith "aswritten.ai" ;
+    prov:wasAttributedTo "n8n.aswritten.ai" ;
+    prov:generatedAtTime "2026-03-10T16:40:50.001Z"^^xsd:dateTime ;
+    sb:originPath ".aswritten/memories/2026-03-10-peter-caron-gotham-acupuncture-growth-strategy.md" ;
+    sb:originRef "main" .
+
+} ;
+
+# =============================================================
+# BLOCK 2 — UPDATE narr:Sample_1 title and scope note
+# =============================================================
+
+DELETE {
+  narr:Sample_1 dct:title ?oldTitle .
+  narr:Sample_1 skos:note  ?oldNote .
+}
+INSERT {
+  narr:Sample_1
+    dct:title "Onboarding Call Part 2 — Peter Caron, Gotham Acupuncture: Growth Strategy" ;
+    skos:note  "Discovery call continuation covering doctor referral pipeline, authority positioning, hiring model, revenue targets, expansion timeline, and competitive moat." ;
+    prov:wasGeneratedBy narr:Tx_20260310T164050Z .
+}
+WHERE {
+  narr:Sample_1 dct:title ?oldTitle .
+  OPTIONAL { narr:Sample_1 skos:note ?oldNote . }
+} ;
+
+# =============================================================
+# BLOCK 3 — UPDATE narr:Actor_Jordan (URI + label + note)
+# Replaces narr:Actor_JordanBarber with narr:Actor_Jordan
+# =============================================================
+
+DELETE {
+  narr:Actor_JordanBarber ?p ?o .
+}
+INSERT {
+  narr:Actor_Jordan a narr:Actor ;
+    skos:prefLabel "Jordan" ;
+    skos:note "Co-founder, Gotham Acupuncture. Co-author of the authority book. Strong marketing background." ;
+    dct:source narr:Sample_1 ;
+    prov:wasGeneratedBy narr:Tx_20260310T164050Z .
+}
+WHERE {
+  narr:Actor_JordanBarber ?p ?o .
+} ;
+
+# =============================================================
+# BLOCK 4 — UPDATE narr:Actor_PeterCaron note
+# =============================================================
+
+DELETE {
+  narr:Actor_PeterCaron skos:note ?oldNote .
+}
+INSERT {
+  narr:Actor_PeterCaron
+    skos:note "Co-founder, Gotham Acupuncture. Primary speaker. Strategic architect of the doctor referral and specialist positioning model." ;
+    prov:wasGeneratedBy narr:Tx_20260310T164050Z .
+}
+WHERE {
+  OPTIONAL { narr:Actor_PeterCaron skos:note ?oldNote . }
+} ;
+
+# =============================================================
+# BLOCK 5 — UPDATE narr:Actor_Scarlet note
+# =============================================================
+
+DELETE {
+  narr:Actor_Scarlet skos:note ?oldNote .
+}
+INSERT {
+  narr:Actor_Scarlet
+    skos:note "Interviewer / consultant. Validated key insights and crystallized framing around specialty positioning." ;
+    prov:wasGeneratedBy narr:Tx_20260310T164050Z .
+}
+WHERE {
+  OPTIONAL { narr:Actor_Scarlet skos:note ?oldNote . }
+} ;
+
+# =============================================================
+# BLOCK 6 — UPDATE narr:StyleMetrics_Sample1
+# AverageSentenceLength: 22 → 18
+# JargonDensity: 0.12 → 0.06
+# skos:note updated
+# =============================================================
+
+DELETE {
+  narr:StyleMetrics_Sample1 narr:AverageSentenceLength ?oldLen .
+  narr:StyleMetrics_Sample1 narr:JargonDensity           ?oldJargon .
+  narr:StyleMetrics_Sample1 skos:note                    ?oldNote .
+}
+INSERT {
+  narr:StyleMetrics_Sample1
+    narr:AverageSentenceLength 18 ;
+    narr:JargonDensity "0.06"^^xsd:decimal ;
+    skos:note "Conversational register with high active voice. Sentence length varies between short punchy declarations and longer qualifying clauses. Low jargon density; business idioms preferred over technical vocabulary. Estimated from transcript." ;
+    prov:wasGeneratedBy narr:Tx_20260310T164050Z .
+}
+WHERE {
+  OPTIONAL { narr:StyleMetrics_Sample1 narr:AverageSentenceLength ?oldLen . }
+  OPTIONAL { narr:StyleMetrics_Sample1 narr:JargonDensity ?oldJargon . }
+  OPTIONAL { narr:StyleMetrics_Sample1 skos:note ?oldNote . }
+}

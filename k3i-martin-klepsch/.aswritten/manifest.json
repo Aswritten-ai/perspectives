@@ -1,0 +1,43 @@
+{
+  ".aswritten/memories/2026-03-05-k3i-call-martin-klepsch.md": {
+    "path": ".aswritten/memories/2026-03-05-k3i-call-martin-klepsch.md",
+    "sha": "2b6a431ca5f547a01f2e0202e6a08a2ca7c585f2",
+    "tx": []
+  },
+  ".aswritten/stories/cheatsheet.story": {
+    "path": ".aswritten/stories/cheatsheet.story",
+    "sha": "7a3e34b8fc8a0140843d444b3f4854db049a55ae",
+    "tx": [
+      "/2026-03-05-k3i-call-martin-klepsch.sparql"
+    ]
+  },
+  ".aswritten/stories/graph-health.story": {
+    "path": ".aswritten/stories/graph-health.story",
+    "sha": "b3fbdf9143f7a89d71d870bf8b1eab56db071165",
+    "tx": [
+      "/2026-03-05-k3i-call-martin-klepsch.sparql"
+    ]
+  },
+  ".aswritten/stories/north-star.story": {
+    "path": ".aswritten/stories/north-star.story",
+    "sha": "d35e863e787afd9435784db9f08849d0bf21f4fb",
+    "tx": [
+      "/2026-03-05-k3i-call-martin-klepsch.sparql"
+    ]
+  },
+  ".aswritten/stories/summary.story": {
+    "path": ".aswritten/stories/summary.story",
+    "sha": "37309023bffa0180340fa297be6c9338eb885e28",
+    "tx": [
+      "/2026-03-05-k3i-call-martin-klepsch.sparql"
+    ]
+  },
+  ".aswritten/stories/tx-summary.story": {
+    "path": ".aswritten/stories/tx-summary.story",
+    "sha": "7b8eb7211f1bf8f747ba16fc403da26ba2795ff2",
+    "tx": [
+      "/2026-03-05-k3i-call-martin-klepsch.sparql"
+    ]
+  },
+  "scaffold_version": "8493d213bca3"
+}
