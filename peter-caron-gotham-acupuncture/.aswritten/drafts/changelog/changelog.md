@@ -1,3 +1,0 @@
-No transactions were found in the collective memory repository. As a result, no changelog entry can be generated at this time.
-
-The changelog is designed to narrate shifts in organizational worldview—decisions, strategy, and evolving understanding—by translating new `.sparql` transactions into human-readable updates. Once a memory is saved to `.aswritten/memories/` and processed into a transaction, I will be able to generate the corresponding entry.
