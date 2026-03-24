@@ -1,0 +1,219 @@
+name: stories/draft
+# DISABLED: Stories are org-only tooling. Re-enable post-launch.
+# Disabling removes: story drafting on PR, increment/changelog, manifest cache invalidation.
+
+on:
+  workflow_dispatch:
+    inputs:
+      story_file:
+        description: 'Template file path to draft (e.g. .aswritten/stories/changelog.md)'
+        required: false
+        type: string
+
+concurrency:
+  group: stories-draft-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  n8n:
+    # Skip if triggered by bot commit (n8n includes [skip ci] but as backup)
+    if: |
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message || '', '[skip ci]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Check for relevant changes
+        id: check
+        run: |
+          # For PRs, check if the latest commit changed story templates or .sparql files
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            changed=$(git diff --name-only HEAD~1 HEAD | grep -E '(\.aswritten/stories/.*\.md|\.sparql)$' || true)
+            if [ -z "$changed" ]; then
+              echo "No story templates or .sparql files changed in latest commit, skipping"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: List templates
+        if: steps.check.outputs.skip != 'true'
+        id: list
+        env:
+          INPUT_STORY_FILE: ${{ inputs.story_file }}
+        run: |
+          if [ -n "$INPUT_STORY_FILE" ]; then
+            if [ ! -f "$INPUT_STORY_FILE" ]; then
+              echo "::error::File not found: $INPUT_STORY_FILE"
+              exit 1
+            fi
+            echo "Manual trigger for: $INPUT_STORY_FILE"
+            echo "templates=[\"$INPUT_STORY_FILE\"]" >> "$GITHUB_OUTPUT"
+          else
+            git ls-files '.aswritten/stories/*.md' | jq -R -s -c 'split("\n")|map(select(length>0))' > /tmp/templates.json
+            echo "templates=$(cat /tmp/templates.json)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Process stories
+        if: steps.check.outputs.skip != 'true'
+        env:
+          INPUT_STORY_FILE: ${{ inputs.story_file }}
+          N8N_WEBHOOK_URL: ${{ vars.N8N_WEBHOOK_BASE || 'https://n8n.aswritten.ai' }}/webhook/story-generate
+          GH_REPO: ${{ github.repository }}
+          GH_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GH_REF: ${{ github.head_ref || github.ref }}
+          GH_ACTOR: ${{ github.actor }}
+          GH_TOKEN: ${{ github.token }}
+          GH_PR_NUMBER: ${{ github.event.pull_request.number }}
+          TEMPLATES: ${{ steps.list.outputs.templates }}
+          DEFAULT_MODEL: 'google/gemini-3-flash-preview'
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          mkdir -p /tmp/results
+          declare -a templates_arr
+          declare -A check_ids
+
+          # Parse templates into array
+          while IFS= read -r template; do
+            templates_arr+=("$template")
+          done < <(echo "$TEMPLATES" | jq -r '.[]')
+
+          # Phase 1: Create all checks (in_progress)
+          echo "Creating checks..."
+          for template in "${templates_arr[@]}"; do
+            check_id=$(curl -sS -X POST \
+              "https://api.github.com/repos/$GH_REPO/check-runs" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -d "$(jq -n \
+                --arg name "Draft: $template" \
+                --arg sha "$GH_SHA" \
+                '{name: $name, head_sha: $sha, status: "in_progress"}')" \
+              | jq -r '.id')
+            check_ids["$template"]=$check_id
+            echo "Created check $check_id for $template"
+          done
+
+          # Phase 2: Launch all n8n calls in parallel
+          echo "Launching parallel n8n calls..."
+          for template in "${templates_arr[@]}"; do
+            (
+              response=$(curl -sS -w "\n%{http_code}" -X POST "$N8N_WEBHOOK_URL" \
+                -H "content-type: application/json" \
+                --data "$(jq -n \
+                  --arg repo "$GH_REPO" \
+                  --arg sha "$GH_SHA" \
+                  --arg ref "$GH_REF" \
+                  --arg actor "$GH_ACTOR" \
+                  --arg model "$DEFAULT_MODEL" \
+                  --arg openrouter_key "$OPENROUTER_API_KEY" \
+                  --argjson templates "[\"$template\"]" \
+                  '{repo: $repo, sha: $sha, ref: $ref, actor: $actor, templates: $templates, model: $model, openrouter_key: $openrouter_key, event: "stories/draft"}')")
+
+              http_code=$(echo "$response" | tail -1)
+              body=$(echo "$response" | sed '$d')
+
+              # Save result to file (sanitize filename)
+              safe_name=$(echo "$template" | tr '/' '_')
+              echo "$http_code" > "/tmp/results/${safe_name}.code"
+              echo "$body" > "/tmp/results/${safe_name}.body"
+              echo "Completed $template with code $http_code"
+            ) &
+          done
+
+          # Wait for all background jobs
+          echo "Waiting for all jobs to complete..."
+          wait
+          echo "All jobs completed"
+
+          # Phase 2: Get latest SHA (n8n may have committed new files)
+          if [ -n "$GH_PR_NUMBER" ] && [ "$GH_PR_NUMBER" != "null" ]; then
+            LATEST_SHA=$(curl -sS \
+              "https://api.github.com/repos/$GH_REPO/pulls/$GH_PR_NUMBER" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              | jq -r '.head.sha // empty')
+            echo "Latest PR SHA: $LATEST_SHA"
+          fi
+
+          # Fallback: fetch latest from remote ref
+          if [ -z "$LATEST_SHA" ] || [ "$LATEST_SHA" = "null" ]; then
+            echo "Fetching latest SHA from remote..."
+            git fetch origin "$GH_REF" --quiet 2>/dev/null || true
+            LATEST_SHA=$(git rev-parse "origin/${GH_REF#refs/heads/}" 2>/dev/null || echo "$GH_SHA")
+            echo "Latest ref SHA: $LATEST_SHA"
+          fi
+
+          # Phase 4: Update or create checks based on SHA
+          echo "Updating checks..."
+          failed=0
+          for template in "${templates_arr[@]}"; do
+            safe_name=$(echo "$template" | tr '/' '_')
+            http_code=$(cat "/tmp/results/${safe_name}.code")
+            body=$(cat "/tmp/results/${safe_name}.body")
+            check_id=${check_ids["$template"]}
+
+            if [ "$http_code" = "200" ]; then
+              conclusion="success"
+              # Check if skipped (empty data or skipped flag in response)
+              skipped=$(echo "$body" | jq -r '.skipped // false')
+              data_empty=$(echo "$body" | jq -r '.data | length == 0')
+
+              output_file="${template%.md}.md"
+              file_url="https://github.com/$GH_REPO/blob/${GH_REF#refs/heads/}/$output_file"
+
+              if [ "$skipped" = "true" ] || [ "$data_empty" = "true" ]; then
+                title="Story skipped"
+                summary="Skipped $template (already in manifest)"
+              else
+                title="Story drafted"
+                summary="Successfully drafted [$output_file]($file_url)"
+              fi
+            else
+              conclusion="failure"
+              title="Draft failed"
+              summary="Failed to draft $template: $body"
+              failed=1
+            fi
+
+            # Update existing check
+            curl -sS -X PATCH \
+              "https://api.github.com/repos/$GH_REPO/check-runs/$check_id" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -d "$(jq -n \
+                --arg conclusion "$conclusion" \
+                --arg title "$title" \
+                --arg summary "$summary" \
+                '{status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}')"
+
+            # If SHA changed, also create a new check against latest SHA
+            if [ "$LATEST_SHA" != "$GH_SHA" ]; then
+              curl -sS -X POST \
+                "https://api.github.com/repos/$GH_REPO/check-runs" \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -d "$(jq -n \
+                  --arg name "Draft: $template" \
+                  --arg sha "$LATEST_SHA" \
+                  --arg conclusion "$conclusion" \
+                  --arg title "$title" \
+                  --arg summary "$summary" \
+                  '{name: $name, head_sha: $sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}')"
+            fi
+
+            echo "Updated check for $template: $conclusion"
+          done
+
+          # Exit with failure if any failed
+          if [ "$failed" = "1" ]; then
+            echo "::error::One or more stories failed to draft"
+            exit 1
+          fi

@@ -1,0 +1,4 @@
+{
+  "scaffold_version" : "c5fed0273e6b",
+  "scaffold_files" : [ ".aswritten/drafts/.gitkeep", ".aswritten/drafts/tx-summaries/.gitkeep", ".aswritten/manifest.json", ".aswritten/memories/.gitkeep", ".aswritten/snapshots/.gitkeep", ".aswritten/stories/changelog.md", ".aswritten/stories/graph-health.md", ".aswritten/stories/north-star.md", ".aswritten/stories/summary.md", ".aswritten/stories/tx-summary.md", ".aswritten/tx/.gitkeep", ".claude/settings.local.json", ".github/workflows/draft-stories.yml", ".github/workflows/injest-memories.yml", ".mcp.json", "ASWRITTEN.md", "CLAUDE.md" ]
+}

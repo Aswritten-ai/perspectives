@@ -1,0 +1,194 @@
+name: memories/process
+
+on:
+  push:
+    paths:
+      - '**/.aswritten/memories/*.md'
+      - '.aswritten/memories/*'
+  workflow_dispatch:
+    inputs:
+      memory_file:
+        description: 'Memory file path to injest (e.g. .aswritten/memories/2026-03-05-my-memory.md)'
+        required: false
+        type: string
+
+jobs:
+  injest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Process changed memories
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          GH_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GH_REF: ${{ github.head_ref || github.ref }}
+          GH_PR_NUMBER: ${{ github.event.pull_request.number }}
+          N8N_WEBHOOK_URL: ${{ vars.N8N_WEBHOOK_BASE || 'https://n8n.aswritten.ai' }}/webhook/injest-memories
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          INPUT_MEMORY_FILE: ${{ inputs.memory_file }}
+        run: |
+          # Get memory files: manual input or git diff
+          if [ -n "$INPUT_MEMORY_FILE" ]; then
+            if [ ! -f "$INPUT_MEMORY_FILE" ]; then
+              echo "::error::File not found: $INPUT_MEMORY_FILE"
+              exit 1
+            fi
+            memories=("$INPUT_MEMORY_FILE")
+            echo "Manual trigger for: $INPUT_MEMORY_FILE"
+          else
+            # Match root and subdirectory scoped memories
+            # Use before..after SHA range to catch ALL commits in a push, not just HEAD~1
+            BEFORE_SHA="${{ github.event.before }}"
+            if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
+              # New branch push — diff against merge-base with main
+              BEFORE_SHA=$(git merge-base HEAD origin/main 2>/dev/null || echo "HEAD~1")
+            fi
+            echo "Diffing $BEFORE_SHA..${{ github.sha }}"
+            mapfile -t memories < <(git diff --name-only "$BEFORE_SHA" "${{ github.sha }}" | grep '\.aswritten/memories/.*\.md$')
+          fi
+
+          if [ ${#memories[@]} -eq 0 ]; then
+            echo "No memories changed"
+            exit 0
+          fi
+
+          # Store check IDs and results by memory path
+          declare -A check_ids
+          declare -A results
+
+          # Phase 1: Create all checks (show pending work upfront)
+          echo "Creating checks for ${#memories[@]} memories"
+          for memory in "${memories[@]}"; do
+            check_id=$(curl -sS -X POST \
+              "https://api.github.com/repos/$GH_REPO/check-runs" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -d "$(jq -n \
+                --arg name "Injest: $memory" \
+                --arg sha "$GH_SHA" \
+                '{name: $name, head_sha: $sha, status: "in_progress"}')" \
+              | jq -r '.id')
+            check_ids["$memory"]=$check_id
+            echo "Created check $check_id for $memory"
+          done
+
+          # Phase 2: Process memories sequentially
+          echo "Processing ${#memories[@]} memories sequentially"
+          for memory in "${memories[@]}"; do
+            echo "::group::$memory"
+            check_id=${check_ids["$memory"]}
+
+            # Extract dir from memory path (e.g., "clients/acme/.aswritten/memories/foo.md" -> "clients/acme")
+            dir=$(echo "$memory" | sed 's|/.aswritten/memories/.*||')
+            # If the memory is at root (.aswritten/memories/...), dir equals the original path — reset to empty
+            if [ "$dir" = "$memory" ]; then dir=""; fi
+
+            # Call n8n and wait (20 min timeout, retry 5x with 30s intervals for n8n restarts)
+            response=$(curl -sS --max-time 1200 --retry 5 --retry-delay 30 --retry-all-errors -w "\n%{http_code}" -X POST "$N8N_WEBHOOK_URL" \
+              -H "content-type: application/json" \
+              --data "$(jq -n \
+                --arg repo "$GH_REPO" \
+                --arg ref "$GH_REF" \
+                --arg openrouter_key "$OPENROUTER_API_KEY" \
+                --arg dir "$dir" \
+                --argjson memories "[\"$memory\"]" \
+                '{repo: $repo, ref: $ref, openrouter_key: $openrouter_key, dir: $dir, memories: $memories}')")
+
+            http_code=$(echo "$response" | tail -1)
+            body=$(echo "$response" | sed '$d')
+
+            # Determine result
+            if [ "$http_code" = "200" ]; then
+              conclusion="success"
+              skipped=$(echo "$body" | jq -r '.skipped // false')
+              if [ "$skipped" = "true" ]; then
+                title="Memory skipped"
+                summary="Skipped $memory (unchanged)"
+              else
+                title="Memory injested"
+                summary="Successfully processed $memory"
+              fi
+            else
+              conclusion="failure"
+              title="Injest failed"
+              summary="Failed: $body"
+            fi
+
+            # Store result for later (needed for SHA update)
+            results["$memory"]="$conclusion|$title|$summary"
+
+            # Update check
+            curl -sS -X PATCH \
+              "https://api.github.com/repos/$GH_REPO/check-runs/$check_id" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -d "$(jq -n \
+                --arg conclusion "$conclusion" \
+                --arg title "$title" \
+                --arg summary "$summary" \
+                '{status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}')"
+
+            echo "Completed $memory: $conclusion"
+            echo "::endgroup::"
+          done
+
+          # Fail the job if any memory failed
+          has_failure=false
+          for memory in "${memories[@]}"; do
+            IFS='|' read -r conclusion _ _ <<< "${results["$memory"]}"
+            if [ "$conclusion" = "failure" ]; then
+              has_failure=true
+              echo "::error::Failed to injest $memory"
+            fi
+          done
+
+          # Phase 3: Get latest SHA (n8n may have committed new files)
+          if [ -n "$GH_PR_NUMBER" ] && [ "$GH_PR_NUMBER" != "null" ]; then
+            LATEST_SHA=$(curl -sS \
+              "https://api.github.com/repos/$GH_REPO/pulls/$GH_PR_NUMBER" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              | jq -r '.head.sha // empty')
+            echo "Latest PR SHA: $LATEST_SHA"
+          fi
+
+          # Fallback: fetch latest from remote ref
+          if [ -z "$LATEST_SHA" ] || [ "$LATEST_SHA" = "null" ]; then
+            echo "Fetching latest SHA from remote..."
+            git fetch origin "$GH_REF" --quiet 2>/dev/null || true
+            LATEST_SHA=$(git rev-parse "origin/${GH_REF#refs/heads/}" 2>/dev/null || echo "$GH_SHA")
+            echo "Latest ref SHA: $LATEST_SHA"
+          fi
+
+          # Phase 4: If SHA changed, create new checks against latest SHA
+          if [ "$LATEST_SHA" != "$GH_SHA" ]; then
+            echo "SHA changed from $GH_SHA to $LATEST_SHA, creating updated checks"
+            for memory in "${memories[@]}"; do
+              IFS='|' read -r conclusion title summary <<< "${results["$memory"]}"
+              curl -sS -X POST \
+                "https://api.github.com/repos/$GH_REPO/check-runs" \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -d "$(jq -n \
+                  --arg name "Injest: $memory" \
+                  --arg sha "$LATEST_SHA" \
+                  --arg conclusion "$conclusion" \
+                  --arg title "$title" \
+                  --arg summary "$summary" \
+                  '{name: $name, head_sha: $sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}')"
+              echo "Created updated check for $memory on SHA $LATEST_SHA"
+            done
+          fi
+
+          if [ "$has_failure" = true ]; then
+            echo "::error::One or more memories failed to injest"
+            exit 1
+          fi
